@@ -28,16 +28,15 @@ function Chat() {
   const [text, setText] = useState("");
   const [searchText, setSearchText] = useState("");
   const [openReactionId, setOpenReactionId] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [showProfile, setShowProfile] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const messagesEndRef = useRef(null);
+  const debouncedUpdateActivityRef = useRef(null);
   const navigate = useNavigate();
 
   const reactionEmojis = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
-
-  // Debounced activity update to reduce Firestore writes
-  const debouncedUpdateActivityRef = useRef(null);
 
   const filteredMessages = useMemo(() => {
     if (!searchText.trim()) return messages;
@@ -74,6 +73,7 @@ function Chat() {
       };
 
       setCurrentUserData(userData);
+      setNewName(data.name || "");
 
       await setDoc(doc(db, "presence", user.uid), {
         name: data.name || "Admin",
@@ -105,14 +105,14 @@ function Chat() {
     }
   }, [currentUserData]);
 
-  // Debounced updateActivity to avoid excessive writes
   const debouncedUpdateActivity = useCallback(() => {
     if (debouncedUpdateActivityRef.current) {
       clearTimeout(debouncedUpdateActivityRef.current);
     }
+
     debouncedUpdateActivityRef.current = setTimeout(() => {
       updateActivity();
-    }, 1000); // Debounce by 1 second
+    }, 1000);
   }, [updateActivity]);
 
   useEffect(() => {
@@ -135,15 +135,17 @@ function Chat() {
 
     return () => {
       clearInterval(interval);
+
       if (debouncedUpdateActivityRef.current) {
         clearTimeout(debouncedUpdateActivityRef.current);
       }
+
       window.removeEventListener("mousemove", handleUserActivity);
       window.removeEventListener("keydown", handleUserActivity);
       window.removeEventListener("click", handleUserActivity);
       window.removeEventListener("touchstart", handleUserActivity);
     };
-  }, [currentUserData, debouncedUpdateActivity]);
+  }, [currentUserData, debouncedUpdateActivity, updateActivity]);
 
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
@@ -321,6 +323,36 @@ function Chat() {
     };
   };
 
+  const updateProfileName = async (e) => {
+    e.preventDefault();
+
+    if (!newName.trim() || !currentUserData) return;
+
+    try {
+      await updateDoc(doc(db, "users", currentUserData.id), {
+        name: newName.trim(),
+      });
+
+      await setDoc(doc(db, "presence", currentUserData.id), {
+        name: newName.trim(),
+        role: currentUserData.role,
+        online: true,
+        lastActive: serverTimestamp(),
+        lastSeen: serverTimestamp(),
+      });
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        name: newName.trim(),
+      }));
+
+      setShowProfile(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile name");
+    }
+  };
+
   const deleteMessage = async (messageId) => {
     if (currentUserData?.role !== "admin") return;
 
@@ -389,6 +421,7 @@ function Chat() {
     } catch (error) {
       console.error("Error signing out:", error);
     }
+
     navigate("/");
   };
 
@@ -419,7 +452,9 @@ function Chat() {
           <p>{onlineUsers.length} online</p>
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button onClick={() => setShowProfile(true)}>Edit Profile</button>
+
           {currentUserData?.role === "admin" && (
             <>
               <button onClick={clearChat}>Clear Chat</button>
@@ -430,6 +465,27 @@ function Chat() {
           <button onClick={handleLogout}>Logout</button>
         </div>
       </div>
+
+      {showProfile && (
+        <div className="profile-modal">
+          <form className="profile-card" onSubmit={updateProfileName}>
+            <h2>Edit Profile</h2>
+
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Enter display name"
+            />
+
+            <div className="profile-actions">
+              <button type="submit">Save</button>
+              <button type="button" onClick={() => setShowProfile(false)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="online-users">
         {onlineUsers.map((user) => (
