@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
 import JoinGroup from "./pages/JoinGroup";
@@ -10,7 +10,7 @@ import "./styles/global.css";
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/join/:inviteCode" element={<JoinGroup />} />
@@ -18,7 +18,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
