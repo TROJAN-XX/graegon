@@ -848,3 +848,159 @@ body::-webkit-scrollbar,
   background: #334155;
   color: white;
 }
+
+@media (max-width: 768px) {
+  .chat-page {
+    padding: 10px;
+  }
+
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .chat-header h1 {
+    font-size: 28px;
+  }
+
+  .chat-header > div:last-child {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .chat-header button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .online-users {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .online-user {
+    white-space: nowrap;
+  }
+
+  .search-box {
+    margin-bottom: 10px;
+  }
+
+  .chat-box {
+    height: 72vh;
+    border-radius: 14px;
+  }
+
+  .messages {
+    padding: 12px;
+  }
+
+  .message {
+    max-width: 86%;
+    font-size: 14px;
+  }
+
+  .message.own {
+    max-width: 86%;
+  }
+
+  .message-form {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .message-form input {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .message-form button {
+    padding: 0 16px;
+  }
+
+  .reaction-dropdown {
+    gap: 5px;
+    padding: 7px 8px;
+  }
+
+  .reaction-dropdown button {
+    font-size: 18px;
+  }
+
+  .profile-card {
+    width: 92%;
+  }
+
+  .admin-page {
+    padding: 15px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .admin-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .admin-actions button {
+    flex: 1;
+  }
+
+  .invite-actions {
+    flex-direction: column;
+  }
+
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .action-buttons button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 22px;
+  }
+
+  .auth-card h1 {
+    font-size: 34px;
+  }
+
+  .chat-box {
+    height: 70vh;
+  }
+
+  .message {
+    max-width: 92%;
+  }
+
+  .message.own {
+    max-width: 92%;
+  }
+
+  .message-form {
+    flex-direction: row;
+  }
+
+  .message-form button {
+    padding: 0 14px;
+  }
+
+  .message-bottom {
+    font-size: 10px;
+  }
+}
