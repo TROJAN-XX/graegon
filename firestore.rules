@@ -1,0 +1,86 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userExists() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return userExists() && userDoc().data.role == "admin";
+    }
+
+    function isApproved() {
+      return userExists() && (
+        userDoc().data.status == "approved" ||
+        userDoc().data.role == "admin"
+      );
+    }
+
+    match /users/{userId} {
+      allow create: if isSignedIn() && request.auth.uid == userId;
+
+      allow read: if isSignedIn() && (
+        request.auth.uid == userId || isAdmin()
+      );
+
+      allow update: if isAdmin()
+        || (
+          isApproved()
+          && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.status == resource.data.status
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if isApproved();
+
+      allow create: if isApproved()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.text is string;
+
+      allow update: if isApproved();
+
+      allow delete: if isAdmin();
+    }
+
+    match /typing/{userId} {
+      allow read: if isApproved();
+
+      allow create, update: if isApproved()
+        && request.auth.uid == userId;
+
+      allow delete: if isAdmin();
+    }
+
+    match /presence/{userId} {
+  allow read: if isApproved();
+
+  allow create, update: if isApproved()
+    && request.auth.uid == userId
+    && request.resource.data.name is string
+    && request.resource.data.role in ["admin", "user"]
+    && request.resource.data.online is bool;
+
+  allow delete: if isAdmin();
+}
+
+    match /group/{groupId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
