@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/graegon/static/css/main.404870e3.css",
-    "main.js": "/graegon/static/js/main.9f3aacd0.js",
+    "main.css": "/graegon/static/css/main.03f2eccb.css",
+    "main.js": "/graegon/static/js/main.9fa03170.js",
     "static/js/453.d5bdd575.chunk.js": "/graegon/static/js/453.d5bdd575.chunk.js",
     "index.html": "/graegon/index.html",
-    "main.404870e3.css.map": "/graegon/static/css/main.404870e3.css.map",
-    "main.9f3aacd0.js.map": "/graegon/static/js/main.9f3aacd0.js.map",
+    "main.03f2eccb.css.map": "/graegon/static/css/main.03f2eccb.css.map",
+    "main.9fa03170.js.map": "/graegon/static/js/main.9fa03170.js.map",
     "453.d5bdd575.chunk.js.map": "/graegon/static/js/453.d5bdd575.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.404870e3.css",
-    "static/js/main.9f3aacd0.js"
+    "static/css/main.03f2eccb.css",
+    "static/js/main.9fa03170.js"
   ]
 }
