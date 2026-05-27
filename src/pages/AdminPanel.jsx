@@ -10,13 +10,13 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-
+import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 
 function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [inviteCode, setInviteCode] = useState("graegon-private");
-
+  const navigate = useNavigate();
   useEffect(() => {
     const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
 
@@ -67,7 +67,7 @@ function AdminPanel() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (
@@ -79,9 +79,7 @@ function AdminPanel() {
         </div>
 
         <div className="admin-actions">
-          <button onClick={() => (window.location.href = "/chat")}>
-            Go to Chat
-          </button>
+          <button onClick={() => navigate("/chat")}>Go to Chat</button>
 
           <button onClick={handleLogout}>Logout</button>
         </div>

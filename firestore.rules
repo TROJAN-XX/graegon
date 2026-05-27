@@ -17,22 +17,27 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return userExists() && userDoc().data.role == "admin";
+      return userExists()
+        && userDoc().data.role == "admin";
     }
 
     function isApproved() {
-      return userExists() && (
-        userDoc().data.status == "approved" ||
-        userDoc().data.role == "admin"
-      );
+      return userExists()
+        && (
+          userDoc().data.status == "approved"
+          || userDoc().data.role == "admin"
+        );
     }
 
     match /users/{userId} {
-      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn()
+        && request.auth.uid == userId;
 
-      allow read: if isSignedIn() && (
-        request.auth.uid == userId || isAdmin()
-      );
+      allow read: if isSignedIn()
+        && (
+          request.auth.uid == userId
+          || isAdmin()
+        );
 
       allow update: if isAdmin()
         || (
