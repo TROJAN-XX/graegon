@@ -60,7 +60,7 @@ function AdminPanel() {
   };
 
   const copyInviteLink = async () => {
-    const link = `${window.location.origin}/join/${inviteCode}`;
+    const link = `${window.location.origin}${process.env.PUBLIC_URL}/#/join/${inviteCode}`;
     await navigator.clipboard.writeText(link);
     alert("Invite link copied");
   };
@@ -89,7 +89,7 @@ function AdminPanel() {
         <h2>Invite Link</h2>
 
         <input
-          value={`${window.location.origin}/join/${inviteCode}`}
+          value={`${window.location.origin}${process.env.PUBLIC_URL}/#/join/${inviteCode}`}
           readOnly
         />
 
