@@ -7,13 +7,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function userDoc() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid));
-    }
-
     function userExists() {
       return isSignedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
     }
 
     function isAdmin() {
@@ -49,8 +49,15 @@ service cloud.firestore {
       allow read: if isApproved();
 
       allow create: if isApproved()
+        && request.resource.data.type == "text"
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 1000
         && request.resource.data.senderId == request.auth.uid
-        && request.resource.data.text is string;
+        && request.resource.data.senderName is string
+        && request.resource.data.senderRole in ["admin", "user"]
+        && request.resource.data.seenBy is list
+        && request.resource.data.reactions is map;
 
       allow update: if isApproved();
 
@@ -61,22 +68,24 @@ service cloud.firestore {
       allow read: if isApproved();
 
       allow create, update: if isApproved()
-        && request.auth.uid == userId;
+        && request.auth.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.isTyping is bool;
 
       allow delete: if isAdmin();
     }
 
     match /presence/{userId} {
-  allow read: if isApproved();
+      allow read: if isApproved();
 
-  allow create, update: if isApproved()
-    && request.auth.uid == userId
-    && request.resource.data.name is string
-    && request.resource.data.role in ["admin", "user"]
-    && request.resource.data.online is bool;
+      allow create, update: if isApproved()
+        && request.auth.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.role in ["admin", "user"]
+        && request.resource.data.online is bool;
 
-  allow delete: if isAdmin();
-}
+      allow delete: if isAdmin();
+    }
 
     match /group/{groupId} {
       allow read: if isSignedIn();
