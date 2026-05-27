@@ -6,6 +6,7 @@ import Waiting from "./pages/Waiting";
 import Chat from "./pages/Chat";
 import AdminPanel from "./pages/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Footer from "./components/Footer";
 
 import "./styles/global.css";
 
@@ -35,6 +36,8 @@ function App() {
           }
         />
       </Routes>
+
+      <Footer />
     </HashRouter>
   );
 }

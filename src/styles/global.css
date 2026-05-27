@@ -1026,3 +1026,44 @@ body::-webkit-scrollbar,
     transform: rotate(360deg);
   }
 }
+
+.footer {
+  text-align: center;
+  padding: 18px;
+  color: #94a3b8;
+  background: #020617;
+  font-size: 14px;
+}
+
+.footer a {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.bloom-heart {
+  display: inline-block;
+  animation: bloomHeart 1.5s infinite ease-in-out;
+  transform-origin: center;
+}
+
+@keyframes bloomHeart {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(255, 0, 85, 0.2));
+  }
+
+  50% {
+    transform: scale(1.28);
+    filter: drop-shadow(0 0 10px rgba(255, 0, 85, 0.9));
+  }
+
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(255, 0, 85, 0.2));
+  }
+}
