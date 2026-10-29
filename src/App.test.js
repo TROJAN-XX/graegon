@@ -1,8 +1,22 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+// Smoke test: the route table mounts and the public "/" screen (Login) renders.
+// Keep this file router/firebase safe - see development.md -> Testing.
+test("renders the Graegon login screen on the default route", () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  expect(screen.getAllByText("Graegon").length).toBeGreaterThan(0);
+  expect(
+    screen.getByPlaceholderText("Email address"),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
+});
+
+test("offers a path for new users to request access", () => {
+  render(<App />);
+
+  expect(
+    screen.getByRole("button", { name: /new user\? request access/i }),
+  ).toBeInTheDocument();
 });

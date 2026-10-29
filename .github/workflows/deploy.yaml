@@ -1,0 +1,115 @@
+##############################################################
+# graegon - instant deploy workflow
+#
+# What it does:
+#   1. verify  -> npm ci + production build (fails fast on breakage)
+#   2. test    -> CRA test suite (non-interactive)
+#   3. deploy  -> publishes build/ to the `gh-pages` branch
+#                 (the branch GitHub Pages is served from)
+#
+# Triggers:
+#   - every push to `master`  => instant deploy
+#   - manual run from the Actions tab (workflow_dispatch)
+#
+# Required one-time setup (see deployment.md):
+#   - Settings -> Pages -> Source: "Deploy from a branch: gh-pages"
+#   - No secrets needed: GITHUB_TOKEN is provided automatically.
+##############################################################
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Never run two deploys at once; cancel superseded runs.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # needed to push the gh-pages branch
+
+jobs:
+  build:
+    name: Build & verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build production bundle
+        run: npm run build
+        env:
+          CI: "false" # treat CRA warnings as non-fatal, errors as fatal
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: graegon-build
+          path: build
+          retention-days: 7
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run test suite
+        # call Jest directly: argument forwarding after `npm test --` differs
+        # between npm major versions
+        run: npx react-scripts test --watchAll=false --ci --coverage=false
+        env:
+          CI: "true"
+
+  deploy:
+    name: Publish to GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build, test]
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: graegon-build
+          path: build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          publish_branch: gh-pages
+          force_orphan: true # keep gh-pages history flat
